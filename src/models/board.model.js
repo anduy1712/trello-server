@@ -23,9 +23,9 @@ const createNew = async (data) => {
     const resultFinal = await getDB()
       .collection(boardCollectionName)
       .findOne(result.insertedId);
-    return resultFinal; 
+    return resultFinal;
   } catch (error) {
-    console.log(error);
+    throw new Error(error);
   }
 };
 
