@@ -1,5 +1,9 @@
 import Joi from 'joi';
 import { getDB } from '../configs/mongodb.js';
+import { ObjectId } from 'mongodb';
+import { ColumnModel } from './column.model.js';
+import { CardModel } from './card.model.js';
+
 //Define Board Collection
 const boardCollectionName = 'boards';
 const boardCollectionSchema = Joi.object({
@@ -29,4 +33,59 @@ const createNew = async (data) => {
   }
 };
 
-export const BoardModel = { createNew };
+/**
+ *
+ * @param {string} boardId
+ * @param {string} newColumnId
+ */
+const pushColumnOrder = async (boardId, newColumnId) => {
+  try {
+    const result = getDB()
+      .collection(boardCollectionName)
+      .findOneAndUpdate(
+        { _id: ObjectId(boardId) },
+        { $push: { columnOrder: newColumnId } },
+        { returnDocument: 'after' }
+      );
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const getBoard = async (id) => {
+  try {
+    const result = await getDB()
+      .collection(boardCollectionName)
+      .aggregate([
+        {
+          //Match a board
+          $match: {
+            _id: ObjectId(id)
+          }
+        },
+        {
+          $lookup: {
+            from: ColumnModel.columnCollectionName, //collection name
+            localField: '_id',
+            foreignField: 'boardId',
+            as: 'columns'
+          }
+        },
+        {
+          $lookup: {
+            from: CardModel.cardCollectionName, //collection name
+            localField: '_id',
+            foreignField: 'boardId',
+            as: 'cards'
+          }
+        }
+      ])
+      .toArray();
+    return result[0] || {};
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+export const BoardModel = { createNew, getBoard, pushColumnOrder };
