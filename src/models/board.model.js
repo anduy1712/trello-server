@@ -61,7 +61,8 @@ const getBoard = async (id) => {
         {
           //Match a board
           $match: {
-            _id: ObjectId(id)
+            _id: ObjectId(id),
+            _destroy: false
           }
         },
         {

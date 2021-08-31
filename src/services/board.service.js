@@ -1,5 +1,5 @@
 import { BoardModel } from '../models/board.model';
-
+import { cloneDeep } from 'lodash';
 const createNew = async (data) => {
   try {
     const result = await BoardModel.createNew(data);
@@ -16,18 +16,23 @@ const getBoard = async (id) => {
     if (!board || !board.columns) {
       throw Error('Board not found');
     }
+    //Clone Board
+    const transformBoard = cloneDeep(board);
+    //Filter Column
+    transformBoard.columns = transformBoard.columns.filter(
+      (column) => !column._destroy
+    );
     //Add cart to each column
-    board.columns.forEach((column) => {
+    transformBoard.columns.forEach((column) => {
       column.cards = board.cards.filter(
         (card) => card.columnId.toString() === column._id.toString()
       );
     });
     //Sort Column by ColumnOrder, this step will pass to front end :))
-
     //Remove cards
-    delete board.cards;
+    delete transformBoard.cards;
 
-    return board;
+    return transformBoard;
   } catch (error) {
     throw new Error(error);
   }
