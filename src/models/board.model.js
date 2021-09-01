@@ -33,6 +33,25 @@ const createNew = async (data) => {
   }
 };
 
+const update = async (id, data) => {
+  try {
+    const dataUpdate = {
+      ...data
+    };
+    const result = await getDB()
+      .collection(boardCollectionName)
+      .findOneAndUpdate(
+        { _id: ObjectId(id) },
+        { $set: dataUpdate },
+        { returnDocument: 'after' }
+      );
+
+    return result.value;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 /**
  *
  * @param {string} boardId
@@ -89,4 +108,4 @@ const getBoard = async (id) => {
   }
 };
 
-export const BoardModel = { createNew, getBoard, pushColumnOrder };
+export const BoardModel = { createNew, getBoard, pushColumnOrder, update };

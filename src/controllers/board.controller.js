@@ -26,4 +26,17 @@ const getBoard = async (req, res) => {
   }
 };
 
-export const BoardController = { createNew, getBoard };
+const update = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await BoardService.update(id, req.body);
+    res.status(HttpStatusCode.OK).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(HttpStatusCode.INTERNAL_SERVER).json({
+      errors: error.message
+    });
+  }
+};
+
+export const BoardController = { createNew, getBoard, update };

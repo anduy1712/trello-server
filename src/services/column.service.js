@@ -27,11 +27,10 @@ const update = async (id, data) => {
     };
     if (updateData._id) delete updateData._id;
     if (updateData.cards) delete updateData.cards;
-
     const result = await ColumnModel.update(id, updateData);
 
     if (result._destroy) {
-      //delete many card 
+      //delete many card
       CardModel.deleteMany(result.cardOrder);
     }
 
